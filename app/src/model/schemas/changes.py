@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship
-from src.mixing import TimestampMixin
-from src.base import Base
+from src.model.mixing import TimestampMixin
+from src.model.base import Base
 
 class Change(Base, TimestampMixin):
     __tablename__ = "changes"

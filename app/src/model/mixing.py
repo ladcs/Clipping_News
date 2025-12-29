@@ -9,8 +9,8 @@ class TimestampMixin:
     )
     updated_at = Column(
         TIMESTAMP(timezone=True),
-        nullable=True,  # começa NULL
-        onupdate=func.now(),  # só preenche quando houver UPDATE
+        nullable=True,
+        onupdate=func.now(),
     )
     deleted_at = Column(
         TIMESTAMP(timezone=True),

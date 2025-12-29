@@ -1,9 +1,6 @@
 import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.engine import Engine
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,7 +16,7 @@ DATABASE_URL = (
     f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
 
-engine: Engine = create_engine(
+engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
 )
@@ -34,5 +31,16 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
+    finally:
+        db.close()
+
+if __name__=='__main__':
+    from src.model.schemas.news_sources import NewsSource
+
+    db = SessionLocal()
+    try:
+        sources = db.query(NewsSource).all()
+        for source in sources:
+            print(source.id, source.label, source.source_link)
     finally:
         db.close()
