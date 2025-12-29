@@ -152,12 +152,19 @@ Expansão para outros domínios além de finanças
 
 PostgreSQL
 
+fast API
+
+SQLalchemy
+
 Docker / Docker Compose
 
 Python
 
 RSS / Feeds
 
-n8n (planejado)
+n8n
 
-IA Generativa (planejado)
+IA Generativa
+
+
+## 

@@ -15,7 +15,6 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
@@ -25,3 +24,42 @@ services:
 
 volumes:
   pg_data:
+
+# services:
+#   api:
+#     build: .
+#     container_name: clipping_api
+#     env_file:
+#       - .env
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       postgres:
+#         condition: service_healthy
+#     volumes:
+#       - .:/app
+#     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+#   postgres:
+#     image: postgres:16
+#     container_name: clipping_postgres
+#     env_file:
+#       - .env
+#     environment:
+#       POSTGRES_DB: ${DB_NAME}
+#       POSTGRES_USER: ${DB_USER}
+#       POSTGRES_PASSWORD: ${DB_PASS}
+#     ports:
+#       - "${DB_PORT}:5432"
+#     volumes:
+#       - pg_data:/var/lib/postgresql/data
+#       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+
+# volumes:
+#   pg_data:
+
