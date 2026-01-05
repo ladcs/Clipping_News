@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Text, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship
 from models.mixing import TimestampMixin
-from app.db.base import Base
+from db.base import Base
 
 class News(Base, TimestampMixin):
     __tablename__ = "news"

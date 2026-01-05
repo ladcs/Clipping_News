@@ -8,16 +8,12 @@ from alembic import context
 # =========================
 # Imports do projeto
 # =========================
-from session import DATABASE_URL
-from app.db.base import Base
+from core.config import DATABASE_URL
+from db.base import Base
 
 # IMPORTANTE:
 # importe TODOS os models para o metadata
-from models.actives import Active
-from models.news import News
-from models.news_sources import NewsSource
-from models.changes import Change
-from models.change_reasons import ChangeReason
+import models.schemas as schemas
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

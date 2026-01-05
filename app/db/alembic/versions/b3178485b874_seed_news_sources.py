@@ -11,7 +11,7 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.orm import Session
 
-from src.schemas.news_sources import NewsSource
+from models.schemas.news_sources import NewsSource
 
 # revision identifiers, used by Alembic.
 revision: str = 'b3178485b874'
