@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Text, Float, ForeignKey
 from sqlalchemy.orm import relationship
-from src.model.mixing import TimestampMixin
-from src.model.base import Base
+from models.mixing import TimestampMixin
+from app.db.base import Base
 
 class ChangeReason(Base, TimestampMixin):
     __tablename__ = "change_reasons"
