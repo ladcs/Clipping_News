@@ -1,6 +1,9 @@
 import pytest
-from sqlalchemy import text
+from sqlalchemy import text, create_engine
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import sessionmaker
+from db.base import Base
+from core.config import DB_USER, DB_PASS
 
 from db.session import SessionLocal
 
@@ -8,17 +11,27 @@ from db.session import SessionLocal
 # ==========================
 # Fixture: sessão de banco
 # ==========================
+DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@localhost:5432/mydb_test"
+
+engine = create_engine(DATABASE_URL)
+TestingSessionLocal = sessionmaker(bind=engine)
+
+
 @pytest.fixture(scope="function")
 def db_session():
     """
-    Cria uma sessão real com o banco.
-    Usar APENAS em testes de integração.
+    Cria todas as tabelas antes do teste
+    e remove tudo após o teste.
     """
-    session = SessionLocal()
+    Base.metadata.create_all(bind=engine)
+
+    db = TestingSessionLocal()
     try:
-        yield session
+        yield db
     finally:
-        session.close()
+        db.rollback()
+        db.close()
+        Base.metadata.drop_all(bind=engine)
 
 
 # ======================================

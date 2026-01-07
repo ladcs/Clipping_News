@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -5,6 +6,12 @@ from models.schemas.news import News
 
 
 class Repository_News:
+    def get_news_by_title_soft(self, db: Session, title: str, source_id: int) -> News | None:
+        return db.query(News).filter(News.source_id == source_id, News.title == title, News.deleted_at is None).one_or_none()
+    
+    def get_news_by_title(self, db: Session, title: str, source_id: int) -> News | None:
+        return db.query(News).filter(News.source_id == source_id, News.title == title).one_or_none()
+    
     def get_news_by_id_soft(self, db: Session, news_id: int) -> News | None:
         return db.query(News).filter(News.id == news_id, News.deleted_at.is_(None)).one_or_none()
     
@@ -18,13 +25,18 @@ class Repository_News:
         return db.query(News).filter(News.about == about).all()
     
     def create_news(self, db: Session, news: News) -> News:
-        try:
-            db.add(news)
-            db.commit()
-            db.refresh(news)
-        except Exception as e:
-            raise e
+        db.add(news)
+        db.commit()
+        db.refresh(news)
+
         return news
+    
+    def create_news_batch(self, db: Session, news: List[News]):
+        db.add_all(news)
+        db.commit()
+        for n in news:
+            db.refresh(n)
+
     
     def update_news_summary(
         self,
@@ -60,6 +72,14 @@ class Repository_News:
             db.query(News)
             .filter(News.id == new_id)
             .update({"deleted_at": datetime})
+        )
+        db.commit()
+
+    def restore_soft_deleted(self, db: Session, new_id: int):
+        (
+            db.query(News)
+            .filter(News.id == new_id)
+            .update({"deleted_at": None})
         )
         db.commit()
 

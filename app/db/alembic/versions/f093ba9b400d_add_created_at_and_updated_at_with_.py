@@ -1,7 +1,7 @@
 """add updated_at trigger for all tables
 
 Revision ID: f093ba9b400d
-Revises: b3178485b874
+Revises: fb2614295ed5
 Create Date: 2025-12-29 15:32:03
 """
 
@@ -10,7 +10,7 @@ from alembic import op
 
 # revision identifiers
 revision: str = "f093ba9b400d"
-down_revision: Union[str, Sequence[str], None] = "b3178485b874"
+down_revision: Union[str, Sequence[str], None] = "fb2614295ed5"
 branch_labels = None
 depends_on = None
 

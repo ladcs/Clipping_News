@@ -5,17 +5,17 @@ from models.schemas.news_sources import NewsSource
 
 
 class Repository_News_Source:
-    def get_source_by_id(self, db: Session, news_id: int) -> NewsSource | None:
-        return db.query(NewsSource).filter(NewsSource.id == news_id).one_or_none()
+    def get_source_by_id(self, db: Session, source_id: int) -> NewsSource | None:
+        return db.query(NewsSource).filter(NewsSource.id == source_id).one_or_none()
     
-    def get_source_by_id_soft(self, db: Session, news_id: int) -> NewsSource | None:
-        return db.query(NewsSource).filter(NewsSource.id == news_id, NewsSource.deleted_at.is_(None)).one_or_none()
+    def get_source_by_id_soft(self, db: Session, source_id: int) -> NewsSource | None:
+        return db.query(NewsSource).filter(NewsSource.id == source_id, NewsSource.deleted_at.is_(None)).one_or_none()
     
-    def get_source_by_label_soft(self, db: Session, label: str) -> list[NewsSource]:
-        return db.query(NewsSource).filter(NewsSource.label == label, NewsSource.deleted_at.is_(None)).all()
+    def get_source_by_label_soft(self, db: Session, label: str) -> NewsSource | None:
+        return db.query(NewsSource).filter(NewsSource.label == label, NewsSource.deleted_at.is_(None)).one_or_none()
     
-    def get_source_by_label(self, db: Session, label: str) -> list[NewsSource]:
-        return db.query(NewsSource).filter(NewsSource.label == label).all()
+    def get_source_by_label(self, db: Session, label: str) -> NewsSource | None:
+        return db.query(NewsSource).filter(NewsSource.label == label).one_or_none()
     
     def create_source(self, db: Session, news_source: NewsSource) -> NewsSource:
         try:

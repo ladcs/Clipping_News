@@ -23,7 +23,7 @@ RUN pip install --upgrade pip \
 # Código da aplicação
 COPY . .
 
-RUN sudo chmod +x entrypoint.sh
+RUN chmod +x entrypoint.sh
 
 ENV PYTHONPATH=/app
 

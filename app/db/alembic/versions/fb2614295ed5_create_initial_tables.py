@@ -35,8 +35,6 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('label', sa.Text(), nullable=False),
     sa.Column('source_link', sa.Text(), nullable=False),
-    sa.Column('is_scratch', sa.Boolean(), nullable=False),
-    sa.Column('need_summary', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.Column('deleted_at', sa.TIMESTAMP(timezone=True), nullable=True),

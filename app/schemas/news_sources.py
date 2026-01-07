@@ -1,5 +1,3 @@
-from datetime import datetime
-from typing import Optional
 from pydantic import BaseModel, Field, HttpUrl
 
 
@@ -13,14 +11,6 @@ class SourceBase(BaseModel):
 class SourceCreate(SourceBase):
     pass
 
-class SourceUpdateUrl(BaseModel):
-    source_link: str
-    pass
-
-class NewsUpdateLabel(BaseModel):
-    label: str
-    pass
-
 class NewsUpdateScrath(BaseModel):
     pass
 
@@ -32,5 +22,5 @@ class NewsUpdateIsSummary(BaseModel):
 
 class NewsOut(SourceBase):
     model_config = {
-        "from_attributes": True  # <- importante p/ ORM (SQLAlchemy)
+        "from_attributes": True
     }
