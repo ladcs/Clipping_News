@@ -9,6 +9,9 @@ class Repository_News:
     def get_news_by_title_soft(self, db: Session, title: str, source_id: int) -> News | None:
         return db.query(News).filter(News.source_id == source_id, News.title == title, News.deleted_at is None).one_or_none()
     
+    def get_news_by_source_id(self, db: Session, source_id: int) -> List[News]:
+        return db.query(News).filter(News.source_id == source_id).all()
+
     def get_news_by_title(self, db: Session, title: str, source_id: int) -> News | None:
         return db.query(News).filter(News.source_id == source_id, News.title == title).one_or_none()
     
@@ -36,6 +39,8 @@ class Repository_News:
         db.commit()
         for n in news:
             db.refresh(n)
+        
+        return news
 
     
     def update_news_summary(

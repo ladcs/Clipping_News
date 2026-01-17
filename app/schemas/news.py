@@ -4,14 +4,8 @@ from pydantic import BaseModel, Field, HttpUrl
 
 
 class NewsBase(BaseModel):
-    title: str = Field(..., min_length=3, max_length=255)
     url: HttpUrl
     source_id: int
-    published_at: Optional[datetime] = None
-
-class NewsCreate(NewsBase):
-    content: Optional[str]
-    summary: Optional[str]
 
 class NewsUpdateContent(BaseModel):
     source_label: Optional[str]
@@ -27,12 +21,15 @@ class NewsUpdateSummary(BaseModel):
     id: Optional[int]
     summary: str
 
-class NewsOut(NewsBase):
+class NewsOut(BaseModel):
     id: int
-    created_at: datetime
     content: str
-    summary: str
-    about: str
+
+    link: Optional[str] = None
+    summary: Optional[str] = None
+    about: Optional[str] = None
+
+    created_at: datetime
     model_config = {
         "from_attributes": True  # <- importante p/ ORM (SQLAlchemy)
     }

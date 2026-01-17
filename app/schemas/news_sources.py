@@ -11,16 +11,11 @@ class SourceBase(BaseModel):
 class SourceCreate(SourceBase):
     pass
 
-class NewsUpdateScrath(BaseModel):
-    pass
+class SourceUpdateUrl(BaseModel):
+    source_id: int
+    source_link: HttpUrl
 
-class NewsUpdateNeedSummary(BaseModel):
-    pass
-
-class NewsUpdateIsSummary(BaseModel):
-    pass
-
-class NewsOut(SourceBase):
+class SourceNewsOut(SourceBase):
     model_config = {
         "from_attributes": True
     }

@@ -16,7 +16,7 @@ class News(Base, TimestampMixin):
 
     title = Column(Text, nullable=False)
     link = Column(Text)
-    summary = Column(Text, nullable=False)
+    summary = Column(Text)
     content = Column(Text)
     about = Column(Text)
     datetime = Column(TIMESTAMP(timezone=True), index=True)

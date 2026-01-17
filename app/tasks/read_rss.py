@@ -8,7 +8,11 @@ def cleaning_html(entry, need_clean, news_keys):
     for key in news_keys:
         value = entry.get(key)
         if key in need_clean and value:
-            news_feed_dict[key] = clean_html(value)
+            if key == 'content':
+                content = entry.content[0].value
+                news_feed_dict[key] = clean_html(content)
+            else:
+                news_feed_dict[key] = clean_html(value)
         else:
             news_feed_dict[key] = value
     return news_feed_dict
@@ -30,7 +34,7 @@ def filter_existing_news(db, feed, source_id):
 
     existing_titles = {
         n.title
-        for n in repository.get_titles_by_source(db, source_id)
+        for n in repository.get_news_by_source_id(db, source_id)
     }
 
     return [

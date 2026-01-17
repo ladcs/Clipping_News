@@ -59,7 +59,7 @@ def upgrade() -> None:
     sa.Column('source_id', sa.Integer(), nullable=False),
     sa.Column('title', sa.Text(), nullable=False),
     sa.Column('link', sa.Text(), nullable=True),
-    sa.Column('summary', sa.Text(), nullable=False),
+    sa.Column('summary', sa.Text(), nullable=True),
     sa.Column('content', sa.Text(), nullable=True),
     sa.Column('about', sa.Text(), nullable=True),
     sa.Column('datetime', sa.TIMESTAMP(timezone=True), nullable=True),

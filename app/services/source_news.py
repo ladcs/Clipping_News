@@ -46,33 +46,3 @@ class Service_News_Source:
             source_db.source_link = source_link
             new_source = repository.update_source(db, source_id, source_db)
         return new_source
-    
-    def change_Scrath(self, source_id: int) -> NewsSource:
-        with get_db() as db:
-            repository = Repository_News_Source()
-            source_db = repository.get_source_by_id_soft(db, source_id)
-            if source_db is None:
-                raise HTTPException(status_code=400, detail='source news do not exist')
-            source_db.is_scratch = not source_db.is_scratch
-            new_source = repository.update_source(db, source_id, source_db)
-        return new_source
-    
-    def change_is_summary(self, source_id: int) -> NewsSource:
-        with get_db() as db:
-            repository = Repository_News_Source()
-            source_db = repository.get_source_by_id_soft(db, source_id)
-            if source_db is None:
-                raise HTTPException(status_code=400, detail='source news do not exist')
-            source_db.is_summary = not source_db.is_summary
-            new_source = repository.update_source(db, source_id, source_db)
-        return new_source
-    
-    def change_need_summary(self, source_id: int) -> NewsSource:
-        with get_db() as db:
-            repository = Repository_News_Source()
-            source_db = repository.get_source_by_id_soft(db, source_id)
-            if source_db is None:
-                raise HTTPException(status_code=400, detail='source news do not exist')
-            source_db.need_summary = not source_db.need_summary
-            new_source = repository.update_source(db, source_id, source_db)
-        return new_source

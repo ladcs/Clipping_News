@@ -50,7 +50,7 @@ def upgrade():
                     "trash": ['content'],
                     'is_scrath': False,
                     'need_summary': False,
-                    'is_summary': True
+                    'is_summary': False
                 },
             },
             {
