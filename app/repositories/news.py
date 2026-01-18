@@ -1,11 +1,23 @@
 from typing import List
 from sqlalchemy.orm import Session
 from datetime import datetime
+from sqlalchemy import func
 
 from models.schemas.news import News
 
 
 class Repository_News:
+    def get_by_id_in_list(self, db: Session, source_id: int, news_id_list: List[int]) -> List[News]:
+        return db.query(News).filter(News.id.in_(news_id_list), News.source_id == source_id).all()
+    
+    def get_next_id_for_source(self, db: Session, source_id: int) -> int:
+        max_id = (
+            db.query(func.max(News.id))
+            .filter(News.source_id == source_id)
+            .scalar()
+        )
+        return (max_id or 0) + 1
+
     def get_news_by_title_soft(self, db: Session, title: str, source_id: int) -> News | None:
         return db.query(News).filter(News.source_id == source_id, News.title == title, News.deleted_at is None).one_or_none()
     
@@ -47,13 +59,16 @@ class Repository_News:
         self,
         db: Session,
         news_id: int,
-        summary: str
+        source_id: int,
+        summary: str,
+        about: str
     ) -> None:
 
         (
             db.query(News)
-            .filter(News.id == news_id)
-            .update({"summary": summary})
+            .filter(News.id == news_id,
+                    News.source_id == source_id)
+            .update({"summary": summary, "about": about})
         )
         db.commit()
 

@@ -67,24 +67,41 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.Column('deleted_at', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['source_id'], ['news_sources.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('source_id', 'id')
     )
     op.create_index(op.f('ix_news_datetime'), 'news', ['datetime'], unique=False)
     op.create_index(op.f('ix_news_source_id'), 'news', ['source_id'], unique=False)
-    op.create_table('change_reasons',
+    op.create_table(
+    'change_reasons',
     sa.Column('id', sa.Integer(), nullable=False),
+
     sa.Column('active_id', sa.Integer(), nullable=True),
     sa.Column('change_id', sa.Integer(), nullable=True),
-    sa.Column('news_id', sa.Integer(), nullable=True),
+
+    sa.Column('news_id', sa.Integer(), nullable=False),
+    sa.Column('news_source_id', sa.Integer(), nullable=False),
+
     sa.Column('label', sa.Text(), nullable=True),
     sa.Column('porcent', sa.Float(), nullable=True),
-    sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
+
+    sa.Column(
+        'created_at',
+        sa.TIMESTAMP(timezone=True),
+        server_default=sa.text('now()'),
+        nullable=False,
+    ),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.Column('deleted_at', sa.TIMESTAMP(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['active_id'], ['actives.id'], ),
-    sa.ForeignKeyConstraint(['change_id'], ['changes.id'], ),
-    sa.ForeignKeyConstraint(['news_id'], ['news.id'], ),
-    sa.PrimaryKeyConstraint('id')
+
+    sa.ForeignKeyConstraint(['active_id'], ['actives.id']),
+    sa.ForeignKeyConstraint(['change_id'], ['changes.id']),
+    sa.ForeignKeyConstraint(
+        ['news_source_id', 'news_id'],
+        ['news.source_id', 'news.id'],
+        ondelete='CASCADE',
+    ),
+
+    sa.PrimaryKeyConstraint('id'),
     )
     op.create_index(op.f('ix_change_reasons_active_id'), 'change_reasons', ['active_id'], unique=False)
     op.create_index(op.f('ix_change_reasons_change_id'), 'change_reasons', ['change_id'], unique=False)

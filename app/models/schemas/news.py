@@ -10,6 +10,7 @@ class News(Base, TimestampMixin):
     source_id = Column(
         Integer,
         ForeignKey("news_sources.id"),
+        primary_key=True,
         nullable=False,
         index=True,
     )

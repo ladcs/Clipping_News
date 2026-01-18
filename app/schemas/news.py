@@ -1,11 +1,19 @@
 from datetime import datetime
 from typing import Optional
+from typing import List
 from pydantic import BaseModel, Field, HttpUrl
 
 
 class NewsBase(BaseModel):
     url: HttpUrl
     source_id: int
+
+class NewsId(BaseModel):
+    id: int
+    source_id: int
+
+class NewsSummaryUpdate(BaseModel):
+    ids: List[NewsId]
 
 class NewsUpdateContent(BaseModel):
     source_label: Optional[str]
@@ -31,5 +39,5 @@ class NewsOut(BaseModel):
 
     created_at: datetime
     model_config = {
-        "from_attributes": True  # <- importante p/ ORM (SQLAlchemy)
+        "from_attributes": True 
     }

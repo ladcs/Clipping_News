@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from services.news import Service_News
-from schemas.news import NewsOut, NewsBase
+from schemas.news import NewsOut, NewsBase, NewsSummaryUpdate
 
 router = APIRouter()
 
@@ -16,3 +16,12 @@ def create_news_from_rss(payload: NewsBase):
         url=payload.url,
         source_id=payload.source_id,
     )
+
+@router.patch(
+        "/resume-batch",
+        response_model=dict[str, str],
+        status_code=200,
+)
+def resume_news_batch(payload: NewsSummaryUpdate):
+    service = Service_News()
+    return service.resume_news_batch(ids=payload.ids)
