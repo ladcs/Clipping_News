@@ -1,0 +1,297 @@
+{
+  "name": "news",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "news_sources",
+          "mode": "list",
+          "cachedResultName": "news_sources"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "deleted_at",
+              "condition": "IS NULL"
+            }
+          ]
+        },
+        "sort": {
+          "values": [
+            {
+              "column": "id"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "id",
+            "source_link"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5c0611fc-fa82-4b55-b71c-fd790373a4b3",
+      "name": "Select rows from a table",
+      "credentials": {
+        "postgres": {
+          "id": "O2LJhIyQybbCFj5m",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "news",
+          "mode": "list",
+          "cachedResultName": "news"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "deleted_at",
+              "condition": "IS NULL"
+            },
+            {
+              "column": "summary",
+              "condition": "IS NULL"
+            }
+          ]
+        },
+        "sort": {
+          "values": [
+            {
+              "column": "id"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "id",
+            "source_id"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        224
+      ],
+      "id": "09130683-63b0-4d7c-a005-89ef10a32fa6",
+      "name": "Select rows from a table1",
+      "credentials": {
+        "postgres": {
+          "id": "O2LJhIyQybbCFj5m",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f210027a-56f7-493f-8902-4d1932977399",
+      "name": "news_source"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 8,
+              "triggerAtMinute": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        16,
+        224
+      ],
+      "id": "e7df1b32-6529-4841-ae3c-525fa9d9fe27",
+      "name": "news"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn [\n  {\n    sources: items.map(item => ({\n      source_id: item.json.source_id,\n      id: item.json.id\n    }))\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        224
+      ],
+      "id": "9928d114-41c3-47db-b60b-2a1a11b21e95",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://clipping_app:8000/api/v1/news/from-rss",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "source_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "url",
+              "value": "={{ $json.source_link }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "3d691334-a82b-453a-b901-f74e2db66623",
+      "name": "get news"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "http://clipping_app:8000/api/v1/news/resume-batch",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "ids",
+              "value": "={{ $json.sources }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        656,
+        224
+      ],
+      "id": "87df9ca0-13fe-4896-ba0e-2c009ce1297d",
+      "name": "get summary"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Select rows from a table": {
+      "main": [
+        [
+          {
+            "node": "get news",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select rows from a table1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "news_source": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "news": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "get summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false,
+    "timeSavedPerExecution": 60,
+    "errorWorkflow": "6uQW7VTO66H507Nt"
+  },
+  "versionId": "f3bef70e-67a2-4f03-98da-db942c77fce2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b9de05460ba296c2d685989ebf8581abee82237368304eaaf42718b3076d84b5"
+  },
+  "id": "6uQW7VTO66H507Nt",
+  "tags": []
+}
