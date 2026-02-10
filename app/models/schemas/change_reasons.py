@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    TIMESTAMP,
     Column,
     Integer,
     Text,
@@ -25,6 +26,10 @@ class ChangeReason(Base, TimestampMixin):
 
     label = Column(Text)
     porcent = Column(Float)
+
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default="now()")
+    updated_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    deleted_at = Column(TIMESTAMP(timezone=True), nullable=True)
 
     __table_args__ = (
         ForeignKeyConstraint(

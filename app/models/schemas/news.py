@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, Text, ForeignKey, TIMESTAMP
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from models.mixing import TimestampMixin
 from db.base import Base
@@ -19,7 +20,11 @@ class News(Base, TimestampMixin):
     link = Column(Text)
     summary = Column(Text)
     content = Column(Text)
-    about = Column(Text)
+    about = Column(JSONB, nullable=True)
     datetime = Column(TIMESTAMP(timezone=True), index=True)
+
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default="now()")
+    updated_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    deleted_at = Column(TIMESTAMP(timezone=True), nullable=True)
 
     source = relationship("NewsSource", back_populates="news")

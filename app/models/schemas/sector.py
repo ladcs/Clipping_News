@@ -1,25 +1,24 @@
-from sqlalchemy import TIMESTAMP, Column, Integer, Float, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, TIMESTAMP, Text
 from sqlalchemy.orm import relationship
-from models.mixing import TimestampMixin
 from db.base import Base
 
-class Change(Base, TimestampMixin):
-    __tablename__ = "changes"
+class Sector(Base):
+    __tablename__ = "sectors"
 
     id = Column(Integer, primary_key=True)
-    active_id = Column(
+
+    actives_id = Column(
         Integer,
         ForeignKey("actives.id"),
+        primary_key=True,
         nullable=False,
         index=True,
     )
 
-    active_value = Column(Float, nullable=False)
-    active_value_prev = Column(Float)
+    label = Column(Text, nullable=False)
 
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default="now()")
     updated_at = Column(TIMESTAMP(timezone=True), nullable=True)
     deleted_at = Column(TIMESTAMP(timezone=True), nullable=True)
 
-    active = relationship("Active", back_populates="changes")
-    reasons = relationship("ChangeReason", back_populates="change")
+    active = relationship("Active", back_populates="sectors")

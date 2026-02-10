@@ -4,16 +4,19 @@ from pydantic import HttpUrl
 from requests import get
 import re
 from multiprocessing.pool import ThreadPool
-from pprint import pprint
+import json
+
 
 from schemas.news import NewsSummaryUpdate
 from repositories.new_source_settings import Repository_News_Source_Settings
 from repositories.news import Repository_News
+from repositories.actives import Repository_Actives
 from db.session import get_db
 from models.schemas.news import News
 from tasks.read_rss import cleaning_html_feed, filter_existing_news
-from utils.news_summary import create_news_summary_prompt
+from utils.news_prompts import create_about_news_prompt, create_news_summary_prompt
 
+from pprint import pprint
 
 EMOJI_PATTERN = re.compile(
     r"[\U00010000-\U0010FFFF]",
@@ -107,26 +110,91 @@ class Service_News:
         for source_id, ids in group_by_source.items():
             group_by_source[source_id] = [ids[i: i + 20] for i in range(0, len(ids), 20)]
         repository_news = Repository_News()
+        actives_repository = Repository_Actives()
         for source_id, batch in group_by_source.items():
             for b in batch:
-                pprint(source_id)
-                pprint(b)
                 with get_db() as db:
+                    actives = actives_repository.get_all_actives(db)
                     news_list = repository_news.get_by_id_in_list(db, source_id, b)
-                    for news in news_list:
-                        pprint(news.content)
-            
+                    actives_list = [a.name for a in actives]
+
                 with ThreadPool(processes=5) as pool:
-                    results = pool.starmap(create_news_summary_prompt, [(news.content, news.id) for news in news_list])
+                    results = pool.starmap(create_news_summary_prompt, [(news.content, news.id, actives_list) for news in news_list])
 
                 for summary, _id in results:
-                    if "about:" in summary:
-                        summary, about = summary.split("about:")
-                        pprint(_id)
-                        pprint(source_id)
-                    else:
-                        about = ""
                     summary = summary.replace("summary:", "").strip()
-                    repository_news.update_news_summary(db, _id, source_id, summary, about.strip())
+                    summary = summary.replace("Resumo:", "").strip()
+                    repository_news.update_news_summary(db, _id, source_id, summary)
             
         return {"message": "Resumo atualizado com sucesso!"}
+    
+    def about_news_batch(self, source_id: int | None = None) -> str:
+        repository_news = Repository_News()
+        repository_actives = Repository_Actives()
+
+        with get_db() as db:
+            news = repository_news.get_news_to_about(db) if source_id is None else repository_news.get_news_to_about_with_source_id(db, source_id)
+            actives = repository_actives.get_all_actives(db)
+        list_news = []
+        for n in news:
+            news_dict = {}
+            news_dict["id"] = n.id
+            news_dict["source_id"] = n.source_id
+            news_dict["summary"] = n.summary
+            list_news.append(news_dict)
+        
+        if len(list_news) == 0:
+            return {"message": "Nenhuma notícia para atualizar o about!"}
+        
+        if source_id is not None:
+            list_news = [n for n in list_news if n['source_id'] == source_id]
+
+        list_news = list_news
+
+        list_actives = []
+        for n in actives:
+            if not n.sectors:
+                sector_dict = {}
+                sector_dict['active_id'] = n.id
+                sector_dict['name'] = n.name
+                list_actives.append(sector_dict)
+            for s in n.sectors:
+                sector_dict = {}
+                sector_dict['active_id'] = n.id
+                sector_dict['name'] = n.name
+                label = s.label
+                sector_id = s.id
+                sector_dict['sector'] = label
+                sector_dict['sector_id'] = sector_id
+                list_actives.append(sector_dict)
+
+        group_by_source = dict()
+        for n in list_news:
+            if n['source_id'] not in group_by_source:
+                group_by_source[n['source_id']] = []
+            group_by_source[n['source_id']].append(n['id'])
+        
+        for source_id, n in group_by_source.items():
+            with ThreadPool(processes=5) as pool:
+                results = pool.starmap(create_about_news_prompt, [(news['summary'], news['id'],  list_actives) for news in list_news])
+            for response, _id in results:
+                try:
+                    data = json.loads(response)
+                except json.JSONDecodeError:
+                    print(f"""Erro ao converter para JSON: {str(response)}
+                          id da notícia: {_id}
+                          id da fonte: {source_id}
+                    """)
+                    continue
+                try:
+                    if isinstance(data, str):
+                        data = json.loads(data)
+                except json.JSONDecodeError:
+                    print(f"""Erro ao converter para JSON: {str(response)}
+                          id da notícia: {_id}
+                          id da fonte: {source_id}
+                    """)
+                    continue
+                repository_news.update_news_about(db, _id, source_id, data)
+
+        return {"message": 'about atualizado com sucesso!'}

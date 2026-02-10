@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy.orm import Session
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 from models.schemas.news import News
 
@@ -17,6 +17,30 @@ class Repository_News:
             .scalar()
         )
         return (max_id or 0) + 1
+    
+    def get_news_to_about(self, db: Session) -> List[News]:
+        return db.query(News).filter(
+        News.about.is_(None),
+        News.deleted_at.is_(None),
+        News.summary.is_not(None), 
+        func.lower(News.summary) != 'nenhum impacto relevante').all()
+    
+    def get_news_to_about_with_source_id(self, db: Session, source_id: int) -> List[News]:
+        return db.query(News).filter(
+        News.source_id == source_id,
+        or_(
+        News.about.is_(None),
+        News.about == {}
+        ),
+        News.deleted_at.is_(None),
+        News.summary.is_not(None), 
+        func.lower(News.summary) != 'nenhum impacto relevante').all()
+    
+    def get_news_about_null_soft(self, db: Session) -> List[News]:
+        return db.query(News).filter(
+        News.about.is_(None),
+        News.deleted_at.is_(None),
+        News.summary.is_not(None)).all()
 
     def get_news_by_title_soft(self, db: Session, title: str, source_id: int) -> News | None:
         return db.query(News).filter(News.source_id == source_id, News.title == title, News.deleted_at is None).one_or_none()
@@ -61,14 +85,28 @@ class Repository_News:
         news_id: int,
         source_id: int,
         summary: str,
-        about: str
     ) -> None:
 
         (
             db.query(News)
             .filter(News.id == news_id,
                     News.source_id == source_id)
-            .update({"summary": summary, "about": about})
+            .update({"summary": summary})
+        )
+        db.commit()
+
+    def update_news_about(
+        self,
+        db: Session,
+        news_id: int,
+        source_id: int,
+        about: str,
+    ) -> None:
+
+        (
+            db.query(News)
+            .filter(News.id == news_id, News.source_id == source_id)
+            .update({"about": about})
         )
         db.commit()
 
